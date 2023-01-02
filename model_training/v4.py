@@ -15,13 +15,18 @@ def mini_batch(device, data_loader, stepn_fn):
 
 for epoch in range(epochs):
     # print a statement that says `epoch: <epoch number>`
-    print(f'epoch: {epoch}')
-    loss = mini_batch(device, train_loader, train_step_fn)
-    losses.append(loss)
 
-    val_loss = mini_batch(device, validation_loader, validation_step_fn)
-    val_losses.append(val_loss)
+    # create a for in loop of range of 1 to 5
+    for i in range(10, 16):
+        print(f'epoch: {epoch}, smoothing_count: {i}')
+        step_fn = make_train_step_fn_with_smoothing_count(i)
+        loss = mini_batch(device, train_loader, step_fn())
+        losses.append(loss)
 
-    writer.add_scalars(main_tag='loss+no_smoothing', tag_scalar_dict={'training': loss, 'validation': val_loss}, global_step=epoch)
+        val_step_fn = make_valid_step_fn_with_smoothing_count(i)
+        val_loss = mini_batch(device, validation_loader, val_step_fn())
+        val_losses.append(val_loss)
+
+        writer.add_scalars(main_tag=f'loss+smoothing_i=1e-{i}', tag_scalar_dict={'training': loss, 'validation': val_loss}, global_step=epoch)
 
 writer.close()
