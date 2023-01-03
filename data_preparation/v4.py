@@ -1,3 +1,4 @@
+# Removes the one-hot encoding as a step performed on xs
 import torch
 import torch.optim as optim
 import torch.nn.functional as F
@@ -10,8 +11,9 @@ class BigramClassifier(torch.nn.Module):
         super(BigramClassifier, self).__init__()
         self.W = torch.nn.Parameter(torch.randn((27,27), generator=g, requires_grad=True))
 
+    # x here is no longer a one-hot encoded vector, instead we must select the row of W that corresponds to the index of the letter
     def forward(self, x):
-        return x @ self.W
+        return self.W[x]
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -31,7 +33,7 @@ for w in words:
         xs.append(letter_to_index[ch1])
         ys.append(letter_to_index[ch2])
 
-xs = F.one_hot(torch.as_tensor(xs), num_classes=27).float()
+xs = torch.as_tensor(xs)
 ys = torch.as_tensor(ys)
 
 dataset = TensorDataset(xs, ys)
@@ -41,11 +43,13 @@ validation_ratio = .1
 
 n_total = len(dataset)
 n_train = int(n_total * train_ratio)
+n_train_batch=n_train
 n_validation = int(n_total * validation_ratio)
+n_validation_batch=n_validation
 n_test = n_total - n_train - n_validation
 
 train_data, validation_data, test_data = random_split(dataset, [n_train, n_validation, n_test])
 
-train_loader = DataLoader(train_data, batch_size=n_train, shuffle=True)
-validation_loader = DataLoader(validation_data, batch_size=n_validation, shuffle=True)
+train_loader = DataLoader(train_data, batch_size=n_train_batch, shuffle=True)
+validation_loader = DataLoader(validation_data, batch_size=n_validation_batch, shuffle=True)
 test_loader = DataLoader(test_data, batch_size=n_test, shuffle=True)

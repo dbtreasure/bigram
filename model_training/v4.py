@@ -2,9 +2,8 @@ import torch
 import torch.nn.functional as F
 import numpy
 
-epochs = 20
+epochs = 50
 losses = []
-val_losses = []
 
 def mini_batch(device, data_loader, stepn_fn):
     mini_batch_losses = []
@@ -14,19 +13,22 @@ def mini_batch(device, data_loader, stepn_fn):
     return numpy.mean(mini_batch_losses)
 
 for epoch in range(epochs):
-    # print a statement that says `epoch: <epoch number>`
+    print(f'epoch: {epoch}')
+    loss = mini_batch(device, train_loader, train_step_fn)
+    losses.append(loss)
 
-    # create a for in loop of range of 1 to 5
-    for i in range(10, 16):
-        print(f'epoch: {epoch}, smoothing_count: {i}')
-        step_fn = make_train_step_fn_with_smoothing_count(i)
-        loss = mini_batch(device, train_loader, step_fn())
-        losses.append(loss)
-
-        val_step_fn = make_valid_step_fn_with_smoothing_count(i)
-        val_loss = mini_batch(device, validation_loader, val_step_fn())
-        val_losses.append(val_loss)
-
-        writer.add_scalars(main_tag=f'loss+smoothing_i=1e-{i}', tag_scalar_dict={'training': loss, 'validation': val_loss}, global_step=epoch)
+    writer.add_scalars(main_tag=f'lr={lr}&momentum={momentum}&epochs={epochs}&batch={n_train_batch}&smoothing=0.01', tag_scalar_dict={'training': loss}, global_step=epoch)
 
 writer.close()
+
+checkpoint = {
+    'epoch': epochs,
+    'lr': lr,
+    'momentum': momentum,
+    'smoothing': '0.01+W**2.mean()',
+    'model_state_dict': model.state_dict(),
+    'optimizer_state_dict': optimizer.state_dict(),
+    'loss': losses
+}
+
+torch.save(checkpoint, 'checkpoint.pth')

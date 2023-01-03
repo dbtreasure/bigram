@@ -1,6 +1,7 @@
 import torch
 import torch.optim as optim
 import torch.nn.functional as F
+from torch.utils.data import Dataset, TensorDataset, DataLoader
 
 # create a classifier class that inherits from nn.Module
 class BigramClassifier(torch.nn.Module):
