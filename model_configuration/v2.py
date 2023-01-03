@@ -23,7 +23,7 @@ def make_validation_step_fn(model, loss_fn):
         # NO GRADIENTS IN VALIDATION
         with torch.no_grad():
             yhat = model(x)
-            loss = loss_fn(yhat, y) + smoothing()
+            loss = loss_fn(yhat, y)
             return loss.item()
     return validation_step
 
