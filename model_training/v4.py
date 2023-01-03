@@ -13,7 +13,6 @@ def mini_batch(device, data_loader, stepn_fn):
     return numpy.mean(mini_batch_losses)
 
 for epoch in range(epochs):
-    print(f'epoch: {epoch}')
     loss = mini_batch(device, train_loader, train_step_fn)
     losses.append(loss)
 
@@ -33,4 +32,4 @@ checkpoint = {
 
 torch.save(checkpoint, 'checkpoint.pth')
 # print last losses value
-print(losses[-1])
+print(f'Final loss: {losses[-1]}')
