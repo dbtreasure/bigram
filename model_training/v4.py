@@ -32,4 +32,4 @@ checkpoint = {
 
 torch.save(checkpoint, 'checkpoint.pth')
 # print last losses value
-print(f'Final loss: {losses[-1]}')
+print(f'Final training loss: {losses[-1]}')
